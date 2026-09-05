@@ -364,6 +364,13 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                             {item.word}
                           </span>
 
+                          {(item.isEasterEgg || ['정민이', '박정민', '정민'].includes(item.word)) && (
+                            <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-extrabold text-[10px] border border-amber-300 flex items-center gap-1 shadow-2xs animate-pulse">
+                              <Sparkles className="w-2.5 h-2.5 text-amber-600" />
+                              이스터에그
+                            </span>
+                          )}
+
                           {item.pos && (
                             <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px] border border-slate-300">
                               {item.pos}
@@ -516,6 +523,12 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                       <h3 className="font-black text-2xl sm:text-3xl text-black tracking-tight">
                         {detailModalWord.word}
                       </h3>
+                      {(detailModalWord.isEasterEgg || ['정민이', '박정민', '정민'].includes(detailModalWord.word)) && (
+                        <span className="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 font-extrabold text-xs border border-amber-300 flex items-center gap-1 shadow-2xs animate-pulse">
+                          <Sparkles className="w-3 h-3 text-amber-600" />
+                          특별 이스터에그
+                        </span>
+                      )}
                       {detailModalWord.pos && (
                         <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-black font-extrabold text-xs border border-slate-300">
                           {detailModalWord.pos}

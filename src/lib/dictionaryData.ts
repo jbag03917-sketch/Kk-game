@@ -5,10 +5,77 @@ import { isPureHangul, getInitialConsonant } from './hangulRules';
 import { buildApiUrl } from './apiHelper';
 
 /**
+ * 특별 이스터에그 단어 데이터베이스
+ */
+export const EASTER_EGG_WORDS: DictionaryWord[] = [
+  {
+    word: '정민이',
+    pos: '명사(인물)',
+    meaning: '관음중학교를 다니고 있는 모범생.',
+    definitions: ['관음중학교를 다니고 있는 모범생.', '끝말잇기 게임의 특별한 이스터에그 인물.'],
+    senses: [
+      {
+        senseNo: 1,
+        definition: '관음중학교를 다니고 있는 모범생.',
+        pos: '명사(인물)',
+        origin: '이스터에그',
+      },
+    ],
+    length: 3,
+    firstChar: '정',
+    lastChar: '이',
+    origin: '고유어',
+    isEasterEgg: true,
+    source: 'LEXICON',
+  },
+  {
+    word: '박정민',
+    pos: '명사(인물)',
+    meaning: '관음중학교를 다니고 있는 모범생.',
+    definitions: ['관음중학교를 다니고 있는 모범생.', '끝말잇기 게임의 특별한 이스터에그 인물.'],
+    senses: [
+      {
+        senseNo: 1,
+        definition: '관음중학교를 다니고 있는 모범생.',
+        pos: '명사(인물)',
+        origin: '이스터에그',
+      },
+    ],
+    length: 3,
+    firstChar: '박',
+    lastChar: '민',
+    origin: '고유어',
+    isEasterEgg: true,
+    source: 'LEXICON',
+  },
+  {
+    word: '정민',
+    pos: '명사(인물)',
+    meaning: '관음중학교를 다니고 있는 모범생.',
+    definitions: ['관음중학교를 다니고 있는 모범생.', '끝말잇기 게임의 특별한 이스터에그 인물.'],
+    senses: [
+      {
+        senseNo: 1,
+        definition: '관음중학교를 다니고 있는 모범생.',
+        pos: '명사(인물)',
+        origin: '이스터에그',
+      },
+    ],
+    length: 2,
+    firstChar: '정',
+    lastChar: '민',
+    origin: '고유어',
+    isEasterEgg: true,
+    source: 'LEXICON',
+  },
+];
+
+/**
  * 국립국어원 표준국어대사전 및 표준 한국어 검증 단어 데이터베이스
  * 실제 국어사전 등재 단어 (명사, 외래어, 지리/인물/사물/자연/문화 표준어)
  */
 export const DICTIONARY_DATABASE: DictionaryWord[] = [
+  ...EASTER_EGG_WORDS,
   ...COMPREHENSIVE_KOREAN_WORDS,
   ...KOREAN_LEXICON_EXPANDED,
   // ㄱ

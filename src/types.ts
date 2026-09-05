@@ -61,6 +61,7 @@ export interface WordChainItem {
   matchedChar: string;
   definition?: string;
   pos?: string;
+  isEasterEgg?: boolean;
   earnedPoints?: number;
   scoreBonusLabel?: string;
   timestamp: number;
@@ -88,6 +89,7 @@ export interface DictionaryWord {
   lastChar: string;
   isRare?: boolean;
   isAttack?: boolean; // 한방 단어
+  isEasterEgg?: boolean; // 이스터에그 단어
   origin?: string; // 고유어, 한자어, 외래어
   targetCode?: number | string;
   link?: string;

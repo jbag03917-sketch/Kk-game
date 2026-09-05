@@ -13,7 +13,14 @@ interface GameViewProps {
   currentPlayerId: string;
   chatMessages: ChatMessage[];
   onSendMessage: (text: string) => void;
-  onSubmitWord: (word: string, isDueum: boolean, matchedChar: string, definition?: string, pos?: string) => void;
+  onSubmitWord: (
+    word: string,
+    isDueum: boolean,
+    matchedChar: string,
+    definition?: string,
+    pos?: string,
+    isEasterEgg?: boolean
+  ) => void;
   onPlayerTimeout: (playerId: string) => void;
   onLeaveRoom: () => void;
 }
@@ -248,7 +255,8 @@ export const GameView: React.FC<GameViewProps> = ({
         ruleRes.isDueum ?? false,
         ruleRes.matchedChar ?? trimmed[0],
         dictRes.wordInfo?.meaning,
-        dictRes.wordInfo?.pos
+        dictRes.wordInfo?.pos,
+        dictRes.wordInfo?.isEasterEgg
       );
 
       setInputText('');
@@ -777,15 +785,27 @@ export const GameView: React.FC<GameViewProps> = ({
             {lastWordItem ? (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-black text-xl text-black">
-                    {lastWordItem.word}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-black text-xl text-black">
+                      {lastWordItem.word}
+                    </span>
+                    {(lastWordItem.isEasterEgg || ['정민이', '박정민', '정민'].includes(lastWordItem.word)) && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-[10px] flex items-center gap-1 shadow-xs animate-pulse">
+                        <Sparkles className="w-2.5 h-2.5 text-amber-600" />
+                        이스터에그
+                      </span>
+                    )}
+                  </div>
                   <span className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-black font-bold text-[10px]">
                     {lastWordItem.pos || '명사'}
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-700 font-medium leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <p className={`text-xs font-medium leading-relaxed p-3 rounded-xl border ${
+                  (lastWordItem.isEasterEgg || ['정민이', '박정민', '정민'].includes(lastWordItem.word))
+                    ? 'bg-amber-50/80 border-amber-200 text-amber-950 font-semibold shadow-xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-700'
+                }`}>
                   {lastWordItem.definition || '표준국어대사전 및 우리말샘 등재 어휘.'}
                 </p>
 

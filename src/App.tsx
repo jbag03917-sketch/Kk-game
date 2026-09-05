@@ -1300,15 +1300,19 @@ export function App() {
     isDueum: boolean,
     matchedChar: string,
     definition?: string,
-    pos?: string
+    pos?: string,
+    isEasterEgg?: boolean
   ) => {
     if (!activeRoom) return;
 
     const activePlayer = activeRoom.currentPlayers[activeRoom.currentTurnIndex];
     if (!activePlayer) return;
 
+    const isEgg = !!isEasterEgg || ['정민이', '박정민', '정민'].includes(word);
     const scoreBreakdown = calculateWordScore(word, isDueum);
-    const earnedPoints = scoreBreakdown.total;
+    const earnedPoints = isEgg ? scoreBreakdown.total + 50 : scoreBreakdown.total;
+    const finalDefinition = isEgg ? '관음중학교를 다니고 있는 모범생.' : definition;
+    const finalPos = isEgg ? '명사(인물)' : pos;
 
     const newChainItem: WordChainItem = {
       id: 'chain_' + Date.now(),
@@ -1317,11 +1321,12 @@ export function App() {
       playerName: activePlayer.nickname,
       timestamp: Date.now(),
       isDueum,
+      isEasterEgg: isEgg,
       matchedChar,
-      definition,
-      pos,
+      definition: finalDefinition,
+      pos: finalPos,
       earnedPoints,
-      scoreBonusLabel: scoreBreakdown.label,
+      scoreBonusLabel: isEgg ? '🌟 이스터에그 보너스 (+50)' : scoreBreakdown.label,
     };
 
     const updatedPlayers = activeRoom.currentPlayers.map((p, idx) => {
@@ -1365,7 +1370,7 @@ export function App() {
         }
         return {
           ...prev,
-          exp: prev.exp + 10,
+          exp: prev.exp + (isEgg ? 30 : 10),
           wordsHistory: newHistory,
         };
       });
@@ -1375,9 +1380,10 @@ export function App() {
     sendRoomAction('SUBMIT_WORD', {
       word,
       isDueum,
+      isEasterEgg: isEgg,
       matchedChar,
-      definition,
-      pos,
+      definition: finalDefinition,
+      pos: finalPos,
       playerName: userStats.nickname,
       playerColor: userStats.avatarColor,
     });

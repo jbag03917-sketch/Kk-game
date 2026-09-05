@@ -519,7 +519,11 @@ app.post('/api/rooms/:id/action', (req, res) => {
     room.usedWords = [];
     room.turnDuration = 15.0;
   } else if (action === 'SUBMIT_WORD') {
-    const { word, isDueum, matchedChar, definition, pos, playerName, playerColor } = payload;
+    const { word, isDueum, matchedChar, definition, pos, playerName, playerColor, isEasterEgg } = payload;
+    const isEgg = !!isEasterEgg || ['정민이', '박정민', '정민'].includes(word);
+    const eggDefinition = isEgg ? '관음중학교를 다니고 있는 모범생.' : definition;
+    const eggPos = isEgg ? '명사(인물)' : (pos || '명사');
+
     if (word && !room.usedWords.includes(word)) {
       const newItem = {
         id: 'w_' + Date.now() + '_' + Math.random().toString(36).substring(2, 5),
@@ -528,9 +532,10 @@ app.post('/api/rooms/:id/action', (req, res) => {
         playerName: playerName || '플레이어',
         playerColor: playerColor || 'white',
         isDueum: !!isDueum,
+        isEasterEgg: isEgg,
         matchedChar: matchedChar || word[0],
-        definition: definition || '',
-        pos: pos || '명사',
+        definition: eggDefinition || '',
+        pos: eggPos,
         timestamp: Date.now(),
       };
 
@@ -737,6 +742,48 @@ app.get('/api/dict/search', async (req, res) => {
 
   if (!word) {
     return res.status(400).json({ error: '검색할 단어를 입력해주세요.' });
+  }
+
+  // 0. Easter Egg Words Check (정민이, 박정민, 정민 - 관음중학교 모범생 이스터에그)
+  const EASTER_EGGS: Record<string, { pos: string; meaning: string }> = {
+    '정민이': { pos: '명사(인물)', meaning: '관음중학교를 다니고 있는 모범생.' },
+    '박정민': { pos: '명사(인물)', meaning: '관음중학교를 다니고 있는 모범생.' },
+    '정민': { pos: '명사(인물)', meaning: '관음중학교를 다니고 있는 모범생.' },
+  };
+
+  if (EASTER_EGGS[word]) {
+    const egg = EASTER_EGGS[word];
+    const eggResult = {
+      found: true,
+      items: [
+        {
+          id: `${word}-easteregg`,
+          word: word,
+          pos: egg.pos,
+          meaning: egg.meaning,
+          definitions: [egg.meaning, '끝말잇기 게임의 특별한 이스터에그 인물.'],
+          senses: [
+            {
+              senseNo: 1,
+              definition: egg.meaning,
+              pos: egg.pos,
+              origin: '이스터에그',
+            },
+          ],
+          length: word.length,
+          firstChar: word[0],
+          lastChar: word[word.length - 1],
+          origin: '고유어',
+          isEasterEgg: true,
+          source: 'LEXICON',
+        },
+      ],
+      total: 1,
+      source: 'LEXICON',
+      attribution: '🌟 끝말잇기 특별 이스터에그',
+    };
+    serverWordCache.set(word, eggResult);
+    return res.json(eggResult);
   }
 
   // 1. In-Memory Cache Check (0ms response)
