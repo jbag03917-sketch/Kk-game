@@ -104,13 +104,13 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-3 sm:p-5 flex flex-wrap items-center justify-between gap-2.5">
         {/* Room Info */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <div className="flex items-center gap-1.5 bg-purple-50 px-2 sm:px-3 py-1 rounded-xl border border-purple-200/80">
-            <span className="font-mono font-black text-xl sm:text-2xl tracking-wider text-purple-950">
+          <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 sm:px-3 py-1 rounded-xl border border-slate-300">
+            <span className="font-mono font-black text-xl sm:text-2xl tracking-wider text-black">
               {room.id}
             </span>
             <button
               onClick={handleCopyCode}
-              className="p-1 hover:bg-purple-100 rounded-lg text-purple-700 transition-colors text-xs font-semibold flex items-center gap-1 cursor-pointer"
+              className="p-1 hover:bg-slate-200 rounded-lg text-slate-800 transition-colors text-xs font-bold flex items-center gap-1 cursor-pointer"
               title="방 코드 복사"
             >
               <Copy className="w-3.5 h-3.5" />
@@ -118,10 +118,10 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
             </button>
           </div>
           <span className="text-slate-300 hidden sm:inline">|</span>
-          <h2 className="font-extrabold text-sm sm:text-base text-slate-800 truncate max-w-[140px] sm:max-w-xs">
+          <h2 className="font-extrabold text-sm sm:text-base text-black truncate max-w-[140px] sm:max-w-xs">
             {room.title}
           </h2>
-          <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold text-[11px] sm:text-xs">
+          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-800 font-bold text-[11px] sm:text-xs">
             끝말잇기
           </span>
         </div>
@@ -132,10 +132,10 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
           {isHost && room.currentPlayers.length < room.maxPlayers && (
             <button
               onClick={onAddTestPlayer}
-              className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
               title="테스트 플레이어 추가"
             >
-              <UserPlus className="w-4 h-4 text-purple-600" />
+              <UserPlus className="w-4 h-4 text-black" />
               <span className="hidden sm:inline">봇 추가</span>
             </button>
           )}
@@ -143,9 +143,9 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
           {/* QR / Invite Share */}
           <button
             onClick={onOpenShareModal}
-            className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+            className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-black hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
           >
-            <QrCode className="w-4 h-4 text-slate-600" />
+            <QrCode className="w-4 h-4 text-white" />
             <span>초대</span>
           </button>
 
@@ -180,7 +180,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                     sounds.playPop();
                   }}
                   className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md ${c.bg} transition-transform cursor-pointer ${
-                    me?.avatarColor === c.id ? 'scale-120 ring-2 ring-purple-600' : 'hover:scale-110'
+                    me?.avatarColor === c.id ? 'scale-120 ring-2 ring-black' : 'hover:scale-110'
                   }`}
                 />
               ))}
@@ -209,7 +209,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                     }}
                     className={`px-2.5 sm:px-3 py-1 text-xs font-black rounded-lg transition-all ${
                       isSelected
-                        ? 'bg-purple-700 text-white shadow-xs'
+                        ? 'bg-black text-white shadow-xs'
                         : isHost
                         ? 'text-slate-600 hover:bg-slate-200 cursor-pointer'
                         : 'text-slate-400 cursor-default'
@@ -229,7 +229,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
         {/* Center/Right: Start / Ready button */}
         <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
           <span className="text-xs font-bold text-slate-500">
-            인원: <span className="text-purple-700 font-extrabold">{room.currentPlayers.length}</span>/{room.maxPlayers}명
+            인원: <span className="text-black font-black">{room.currentPlayers.length}</span>/{room.maxPlayers}명
           </span>
 
           {isHost ? (
@@ -284,7 +284,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                   isEmpty
                     ? 'bg-white/60 border-dashed border-slate-300/80 flex items-center justify-center'
                     : isMe
-                    ? 'bg-white border-purple-300 shadow-md ring-2 ring-purple-400/30'
+                    ? 'bg-white border-black shadow-md ring-2 ring-black/15'
                     : 'bg-white border-slate-200 shadow-xs'
                 }`}
               >
@@ -316,7 +316,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                       )}
 
                       {isMe && (
-                        <span className="px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 font-extrabold text-[9px]">
+                        <span className="px-1.5 py-0.5 rounded-full bg-black text-white font-extrabold text-[9px]">
                           나
                         </span>
                       )}
@@ -334,7 +334,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
 
                     {/* Nickname */}
                     <div className="w-full text-center border-t border-slate-100 pt-1.5">
-                      <div className="font-extrabold text-xs text-[#1e2022] truncate">
+                      <div className="font-extrabold text-xs text-black truncate">
                         {player.nickname}
                       </div>
                     </div>
@@ -348,8 +348,8 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
         {/* Right: In-Room Live Chat */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 flex flex-col h-[340px] sm:h-[400px] max-h-[400px] overflow-hidden">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100 shrink-0">
-            <MessageCircle className="w-4 h-4 text-purple-600" />
-            <h3 className="font-bold text-sm text-[#1e2022]">대기실 채팅</h3>
+            <MessageCircle className="w-4 h-4 text-black" />
+            <h3 className="font-black text-sm text-black">대기실 채팅</h3>
           </div>
 
           {/* Messages Scrollable List */}
@@ -380,8 +380,8 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                       <div
                         className={`px-3 py-1.5 rounded-xl max-w-[85%] break-words font-medium ${
                           msg.senderId === currentPlayerId
-                            ? 'bg-[#1e2022] text-white rounded-tr-none'
-                            : 'bg-slate-100 text-slate-800 rounded-tl-none'
+                            ? 'bg-black text-white rounded-tr-none'
+                            : 'bg-slate-100 text-black rounded-tl-none'
                         }`}
                       >
                         {msg.text}
@@ -401,11 +401,11 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               placeholder="메시지를 입력하세요..."
-              className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black font-medium"
             />
             <button
               type="submit"
-              className="p-2 rounded-xl bg-[#1e2022] hover:bg-black text-white transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-black hover:bg-slate-800 text-white transition-colors cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
             </button>

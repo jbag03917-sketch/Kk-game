@@ -98,7 +98,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
                 />
               </div>
               <div>
-                <div className="text-[11px] font-extrabold text-indigo-600">
+                <div className="text-[11px] font-extrabold text-black">
                   내 캐릭터 (수면 중)
                 </div>
                 <div className="font-bold text-xs text-slate-500">
@@ -111,7 +111,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
 
         {/* Winner Showcase Card */}
         {winner && isWinner && (
-          <div className="w-full bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl border border-amber-300/60 p-3.5 flex items-center justify-between mb-4">
+          <div className="w-full bg-slate-100 rounded-2xl border border-slate-300 p-3.5 flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <MascotAvatar
                 color={winner.avatarColor}
@@ -122,7 +122,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-black text-amber-600 text-sm">🥇 1위 우승자</span>
-                  <span className="px-1.5 py-0.2 bg-purple-600 text-white rounded text-[9px] font-extrabold">
+                  <span className="px-1.5 py-0.2 bg-black text-white rounded text-[9px] font-extrabold">
                     나
                   </span>
                 </div>
@@ -133,7 +133,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
             </div>
             <div className="text-right">
               <div className="text-[10px] text-slate-500 font-bold">최종 점수</div>
-              <div className="font-mono font-black text-base text-purple-700">
+              <div className="font-mono font-black text-base text-black">
                 {winner.score}점
               </div>
             </div>
@@ -151,7 +151,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
               <div
                 key={player.id}
                 className={`py-1.5 px-2 flex items-center justify-between font-bold ${
-                  isMe ? 'bg-purple-50 text-purple-900 rounded-lg' : 'text-slate-700'
+                  isMe ? 'bg-slate-200 text-black rounded-lg' : 'text-slate-700'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -160,7 +160,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
                   </span>
                   <span className="truncate max-w-[110px]">{player.nickname}</span>
                   {isMe && (
-                    <span className="text-[9px] bg-purple-200 text-purple-800 px-1 py-0.2 rounded">
+                    <span className="text-[9px] bg-black text-white px-1.5 py-0.2 rounded font-bold">
                       나
                     </span>
                   )}
@@ -185,11 +185,11 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           </div>
           <div className="bg-slate-50 p-2 rounded-xl border border-slate-200/60 text-center">
             <div className="text-[9px] text-slate-400 font-bold">획득 경험치</div>
-            <div className="font-black text-xs text-purple-700">+{isWinner ? 50 : 20} EXP</div>
+            <div className="font-black text-xs text-black">+{isWinner ? 50 : 20} EXP</div>
           </div>
           <div className="bg-slate-50 p-2 rounded-xl border border-slate-200/60 text-center">
             <div className="text-[9px] text-slate-400 font-bold">내 사용 단어</div>
-            <div className="font-black text-xs text-indigo-700">{myPlayer?.wordsUsed.length || 0}개</div>
+            <div className="font-black text-xs text-black">{myPlayer?.wordsUsed.length || 0}개</div>
           </div>
         </div>
 
@@ -198,7 +198,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           {onRestartGame && (
             <button
               onClick={onRestartGame}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 font-black text-sm text-white flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-98"
+              className="w-full py-3 px-4 rounded-xl bg-black hover:bg-slate-800 font-black text-sm text-white flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-98"
             >
               <Play className="w-4 h-4 fill-white" />
               <span>{isHost ? '⚡ 즉시 다시 시작' : '⚡ 대기실에서 다시 시작'}</span>

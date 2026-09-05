@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { Search, X, BookOpen, Loader2, RotateCw, Sparkles, ChevronDown } from 'lucide-react';
+import { Search, X, BookOpen, Loader2, RotateCw, ChevronDown } from 'lucide-react';
 import { DictionaryWord } from '../types';
 import { fetchDictionarySearchResults, exploreDictionaryWords } from '../lib/dictionaryData';
 import { getValidStartingChars } from '../lib/hangulRules';
@@ -11,14 +11,11 @@ interface DictionaryViewProps {
   onClose?: () => void;
 }
 
-const CHOSEONG_LIST = ['전체', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
-
 export const DictionaryView: React.FC<DictionaryViewProps> = ({ 
   initialSearch = '',
   onClose,
 }) => {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [selectedChoseong, setSelectedChoseong] = useState<string>('전체');
   const [words, setWords] = useState<DictionaryWord[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -31,11 +28,10 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomObserverRef = useRef<HTMLDivElement>(null);
 
-  // 1. Initial / Fresh Search or Choseong Filter Load
+  // 1. Initial / Fresh Search Load
   const loadWords = useCallback(
     async (
       query: string,
-      choseong: string,
       targetPage: number = 1,
       isRefresh: boolean = false
     ) => {
@@ -56,8 +52,8 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
 
       try {
         if (!trimmed) {
-          // Explore by Choseong / Seed with pagination
-          const res = await exploreDictionaryWords(targetPage, '', choseong, controller.signal);
+          // Explore standard words with pagination
+          const res = await exploreDictionaryWords(targetPage, '', '', controller.signal);
           if (requestId === latestRequestIdRef.current) {
             setWords(res.words);
             setHasMore(res.hasMore);
@@ -81,7 +77,7 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
           setSelectedWord(sorted[0] || null);
         } else {
           // Fallback explore for query prefix
-          const exploreRes = await exploreDictionaryWords(targetPage, trimmed, choseong, controller.signal);
+          const exploreRes = await exploreDictionaryWords(targetPage, trimmed, '', controller.signal);
           if (requestId !== latestRequestIdRef.current) return;
 
           setWords(exploreRes.words);
@@ -110,7 +106,7 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
     setIsLoadingMore(true);
 
     try {
-      const res = await exploreDictionaryWords(nextPage, searchQuery.trim(), selectedChoseong);
+      const res = await exploreDictionaryWords(nextPage, searchQuery.trim(), '');
       if (res.words && res.words.length > 0) {
         setWords((prev) => {
           const seen = new Set(prev.map((w) => w.word));
@@ -127,11 +123,11 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isSearching, isLoadingMore, hasMore, page, searchQuery, selectedChoseong]);
+  }, [isSearching, isLoadingMore, hasMore, page, searchQuery]);
 
   // Initial load
   useEffect(() => {
-    loadWords(initialSearch, '전체', 1);
+    loadWords(initialSearch, 1);
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -143,11 +139,11 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
   useEffect(() => {
     const trimmed = searchQuery.trim();
     const timer = setTimeout(() => {
-      loadWords(trimmed, selectedChoseong, 1);
+      loadWords(trimmed, 1);
     }, 250);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedChoseong, loadWords]);
+  }, [searchQuery, loadWords]);
 
   // Infinite Scroll IntersectionObserver
   useEffect(() => {
@@ -186,21 +182,9 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
   // Handle Refresh Button (새로고침 - 새 단어 무작위 탐색)
   const handleRefresh = () => {
     sounds.playPop();
-    // Randomize initial seed page to bring completely new words
-    const randomSeedPage = Math.floor(Math.random() * 8) + 1;
+    const randomSeedPage = Math.floor(Math.random() * 12) + 1;
     setSearchQuery('');
-    loadWords('', selectedChoseong, randomSeedPage, true);
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  // Handle Choseong Tab Click
-  const handleChoseongClick = (ch: string) => {
-    sounds.playPop();
-    setSelectedChoseong(ch);
-    setSearchQuery('');
-    loadWords('', ch, 1);
+    loadWords('', randomSeedPage, true);
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -209,7 +193,7 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sounds.playPop();
-    loadWords(searchQuery.trim(), selectedChoseong, 1);
+    loadWords(searchQuery.trim(), 1);
   };
 
   return (
@@ -268,8 +252,8 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
           </div>
         </div>
 
-        {/* 2. SEARCH BAR & CHOSEONG TABS */}
-        <div className="bg-slate-50 px-4 sm:px-6 py-3 border-b border-slate-200 shrink-0 space-y-2.5">
+        {/* 2. SEARCH BAR */}
+        <div className="bg-slate-50 px-4 sm:px-6 py-3 border-b border-slate-200 shrink-0">
           {/* Search Bar */}
           <form onSubmit={handleSubmit} className="w-full relative flex items-center">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -285,7 +269,7 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                 type="button"
                 onClick={() => {
                   setSearchQuery('');
-                  loadWords('', selectedChoseong, 1);
+                  loadWords('', 1);
                 }}
                 className="absolute right-14 text-slate-400 hover:text-black p-1 cursor-pointer"
               >
@@ -299,31 +283,6 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
               검색
             </button>
           </form>
-
-          {/* Korean Choseong Alphabet Tabs (ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅅ ㅇ ㅈ ㅊ ㅋ ㅌ ㅍ ㅎ) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-[11px] font-black text-slate-400 shrink-0 mr-1 flex items-center gap-0.5">
-              <Sparkles className="w-3 h-3 text-slate-500" />
-              초성:
-            </span>
-            {CHOSEONG_LIST.map((ch) => {
-              const isActive = selectedChoseong === ch;
-              return (
-                <button
-                  key={ch}
-                  type="button"
-                  onClick={() => handleChoseongClick(ch)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all shrink-0 cursor-pointer ${
-                    isActive
-                      ? 'bg-black text-white shadow-xs scale-105'
-                      : 'bg-white text-slate-600 hover:text-black hover:bg-slate-200/80 border border-slate-200'
-                  }`}
-                >
-                  {ch}
-                </button>
-              );
-            })}
-          </div>
         </div>
 
         {/* 3. WORD LIST (스크롤 시 단어가 계속 이어지는 무한 스크롤 컨테이너) */}
@@ -346,7 +305,7 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
               </div>
               <div className="font-extrabold text-sm text-slate-800">검색된 단어가 없습니다.</div>
               <div className="text-xs text-slate-400">
-                다른 초성이나 검색어로 탐색해보세요.
+                다른 검색어로 탐색해보세요.
               </div>
               <button
                 type="button"
@@ -455,8 +414,6 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
             <span>국립국어원 표준국어대사전 실시간 무한 탐색 연동</span>
           </div>
           <div className="font-bold text-black flex items-center gap-2">
-            <span>초성: {selectedChoseong}</span>
-            <span>·</span>
             <span>표시된 단어: {words.length}개</span>
           </div>
         </div>

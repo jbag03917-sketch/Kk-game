@@ -56,14 +56,14 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
         {/* Header with Tabs */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2">
-            <Globe className="w-5 h-5 text-purple-600" />
-            <h2 className="font-extrabold text-base text-[#1e2022]">
+            <Globe className="w-5 h-5 text-black" />
+            <h2 className="font-extrabold text-base text-black">
               게임 방 목록 & 참가
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+            className="p-1 rounded-lg text-slate-400 hover:text-black hover:bg-slate-100 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -74,34 +74,34 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
           <button
             onClick={() => setActiveTab('LIST')}
             className={`pb-2.5 px-3 text-xs font-bold transition-all relative ${
-              activeTab === 'LIST' ? 'text-purple-700' : 'text-slate-500 hover:text-slate-800'
+              activeTab === 'LIST' ? 'text-black' : 'text-slate-500 hover:text-black'
             }`}
           >
             공개 방 목록
             {activeTab === 'LIST' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-700 rounded-full" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full" />
             )}
           </button>
           <button
             onClick={() => setActiveTab('CREATE')}
             className={`pb-2.5 px-3 text-xs font-bold transition-all relative ${
-              activeTab === 'CREATE' ? 'text-purple-700' : 'text-slate-500 hover:text-slate-800'
+              activeTab === 'CREATE' ? 'text-black' : 'text-slate-500 hover:text-black'
             }`}
           >
             방 만들기
             {activeTab === 'CREATE' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-700 rounded-full" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full" />
             )}
           </button>
           <button
             onClick={() => setActiveTab('DIRECT')}
             className={`pb-2.5 px-3 text-xs font-bold transition-all relative ${
-              activeTab === 'DIRECT' ? 'text-purple-700' : 'text-slate-500 hover:text-slate-800'
+              activeTab === 'DIRECT' ? 'text-black' : 'text-slate-500 hover:text-black'
             }`}
           >
             코드로 직접 입장
             {activeTab === 'DIRECT' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-700 rounded-full" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full" />
             )}
           </button>
         </div>
@@ -118,7 +118,7 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="방 이름 또는 6자리 코드 검색..."
-                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black font-medium"
                 />
               </div>
 
@@ -129,7 +129,7 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
                     <p className="font-semibold mb-2">개설된 공개 방이 없습니다.</p>
                     <button
                       onClick={() => setActiveTab('CREATE')}
-                      className="px-4 py-2 bg-purple-100 text-purple-700 font-bold rounded-xl hover:bg-purple-200 transition-colors"
+                      className="px-4 py-2 bg-black text-white font-bold rounded-xl hover:bg-slate-800 transition-colors"
                     >
                       내가 먼저 방 만들기
                     </button>
@@ -142,7 +142,7 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
                     return (
                       <div
                         key={r.id}
-                        className="p-3.5 rounded-2xl border border-slate-200 bg-white hover:border-purple-300 transition-all flex items-center justify-between shadow-2xs"
+                        className="p-3.5 rounded-2xl border border-slate-200 bg-white hover:border-black transition-all flex items-center justify-between shadow-2xs"
                       >
                         <div>
                           <div className="flex items-center gap-2 mb-1">
@@ -207,7 +207,7 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
                   maxLength={20}
                   value={roomTitle}
                   onChange={(e) => setRoomTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black font-medium"
                   placeholder="방 제목을 입력하세요"
                 />
               </div>
@@ -222,9 +222,9 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
                       key={count}
                       type="button"
                       onClick={() => setMaxPlayers(count)}
-                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                         maxPlayers === count
-                          ? 'bg-[#1e2022] text-white'
+                          ? 'bg-black text-white'
                           : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                       }`}
                     >
@@ -244,9 +244,9 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
                       key={count}
                       type="button"
                       onClick={() => setTotalRounds(count)}
-                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                         totalRounds === count
-                          ? 'bg-purple-700 text-white'
+                          ? 'bg-black text-white'
                           : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                       }`}
                     >
@@ -259,7 +259,7 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-purple-700 to-indigo-800 hover:from-purple-800 hover:to-indigo-900 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full py-3 bg-black hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>방 생성 및 대기실 입장</span>
@@ -270,13 +270,13 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
 
           {activeTab === 'DIRECT' && (
             <form onSubmit={handleDirectJoin} className="space-y-4 text-center py-4">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center mx-auto mb-2">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-black flex items-center justify-center mx-auto mb-2">
                 <KeyRound className="w-6 h-6" />
               </div>
               <h3 className="font-extrabold text-sm text-[#1e2022]">
                 방 코드 4자리 숫자 입력
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 font-medium">
                 친구에게 전달받은 4자리 숫자 방 코드를 입력하면 즉시 참여합니다.
               </p>
 
@@ -286,13 +286,13 @@ export const PublicRoomsModal: React.FC<PublicRoomsModalProps> = ({
                 value={directCode}
                 onChange={(e) => setDirectCode(e.target.value.trim())}
                 placeholder="예: 7421"
-                className="w-48 mx-auto px-4 py-3 text-center text-xl font-mono font-black tracking-widest rounded-xl border-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase block"
+                className="w-48 mx-auto px-4 py-3 text-center text-xl font-mono font-black tracking-widest rounded-xl border-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-black uppercase block"
               />
 
               <button
                 type="submit"
                 disabled={directCode.length < 3}
-                className="w-full py-3 bg-[#1e2022] hover:bg-black disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                className="w-full py-3 bg-black hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
               >
                 방 입장하기
               </button>

@@ -70,11 +70,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="w-full border-t border-slate-100 pt-3 flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs font-bold px-1">
             <span className="text-slate-500">승리 횟수</span>
-            <span className="text-purple-700 font-extrabold">{userStats.wins}회</span>
+            <span className="text-black font-extrabold">{userStats.wins}회</span>
           </div>
           <div className="flex items-center justify-between text-xs font-bold px-1">
             <span className="text-slate-500">승률</span>
-            <span className="text-indigo-700 font-extrabold">{userStats.winRate}%</span>
+            <span className="text-black font-extrabold">{userStats.winRate}%</span>
           </div>
           <div className="flex items-center justify-between text-xs font-bold px-1">
             <span className="text-slate-500">최고 연승</span>

@@ -358,13 +358,13 @@ export const GameView: React.FC<GameViewProps> = ({
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs px-3 sm:px-5 py-2 sm:py-3 flex items-center justify-between gap-2 relative">
         {/* Left info: Room Code & Round with Floating Message Toast */}
         <div className="relative flex items-center gap-2 sm:gap-3 shrink-0">
-          <div className="flex items-center gap-1.5 bg-purple-50 border border-purple-200/80 px-2 sm:px-2.5 py-1 rounded-xl">
-            <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
-            <span className="font-mono font-black text-sm sm:text-base text-purple-950 tracking-wider">
+          <div className="flex items-center gap-1.5 bg-slate-100 border border-slate-300 px-2 sm:px-2.5 py-1 rounded-xl">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-mono font-black text-sm sm:text-base text-black tracking-wider">
               {room.id}
             </span>
           </div>
-          <span className="px-2 py-0.5 rounded-full bg-[#1e2022] text-white font-black text-[11px] sm:text-xs">
+          <span className="px-2 py-0.5 rounded-full bg-black text-white font-black text-[11px] sm:text-xs">
             {room.round}/{room.totalRounds || 3}R
           </span>
           <div className="hidden sm:flex items-center gap-1 text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-xl">
@@ -412,9 +412,9 @@ export const GameView: React.FC<GameViewProps> = ({
               key={idx}
               className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs ${
                 idx + 1 === room.round
-                  ? 'bg-amber-400 text-amber-950 ring-2 ring-amber-500 shadow-xs scale-105'
+                  ? 'bg-black text-white ring-2 ring-slate-400 shadow-xs scale-105'
                   : char !== '?'
-                  ? 'bg-purple-700 text-white shadow-2xs'
+                  ? 'bg-slate-800 text-white shadow-2xs'
                   : 'bg-white text-slate-400 border border-slate-200'
               }`}
             >
@@ -439,7 +439,7 @@ export const GameView: React.FC<GameViewProps> = ({
             onClick={() => setChatOpen(!chatOpen)}
             className={`p-2 rounded-xl transition-colors relative cursor-pointer ${
               chatOpen
-                ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                ? 'bg-black text-white hover:bg-slate-800'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
             }`}
             title={chatOpen ? '사전 & 채팅 접기' : '사전 & 채팅 열기'}
@@ -620,7 +620,7 @@ export const GameView: React.FC<GameViewProps> = ({
                     <div
                       className={`w-full rounded-xl sm:rounded-2xl p-1.5 sm:p-2 text-center transition-all relative ${
                         isActive && player.isAlive
-                          ? 'bg-gradient-to-b from-indigo-50 to-purple-100 border-2 border-purple-400 shadow-md ring-2 ring-purple-300/50'
+                          ? 'bg-slate-100 border-2 border-black shadow-md ring-2 ring-black/20'
                           : !player.isAlive
                           ? 'bg-slate-100/90 border border-slate-200 opacity-75'
                           : 'bg-slate-50 border border-slate-200'
@@ -643,7 +643,7 @@ export const GameView: React.FC<GameViewProps> = ({
                           {player.nickname}
                         </span>
                         {isMe && (
-                          <span className="text-[8px] font-black text-purple-700 bg-purple-100 px-0.5 rounded shrink-0">
+                          <span className="text-[8px] font-black text-white bg-black px-1 rounded shrink-0">
                             나
                           </span>
                         )}
@@ -656,7 +656,7 @@ export const GameView: React.FC<GameViewProps> = ({
 
                       {/* Sleeping / Elimination status */}
                       {!player.isAlive && (
-                        <div className="text-[8px] font-bold text-indigo-600 truncate mt-0.5 flex items-center justify-center gap-0.5">
+                        <div className="text-[8px] font-bold text-slate-500 truncate mt-0.5 flex items-center justify-center gap-0.5">
                           <span>Zzz 탈락</span>
                         </div>
                       )}
@@ -721,7 +721,7 @@ export const GameView: React.FC<GameViewProps> = ({
                   }
                   className={`w-full px-3.5 py-3 sm:px-4 sm:py-3 rounded-xl border text-base font-bold transition-all focus:outline-none ${
                     isMyTurn
-                      ? 'bg-white border-purple-400 focus:ring-4 focus:ring-purple-200/60 shadow-inner text-[#1e2022]'
+                      ? 'bg-white border-black focus:ring-4 focus:ring-black/15 shadow-inner text-black'
                       : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 />
@@ -742,7 +742,7 @@ export const GameView: React.FC<GameViewProps> = ({
                 disabled={!isMyTurn || isSubmitting || !inputText.trim()}
                 className={`px-4 sm:px-8 py-3 rounded-xl font-black text-sm sm:text-base transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0 min-w-[72px] sm:min-w-[90px] ${
                   isMyTurn && inputText.trim()
-                    ? 'bg-gradient-to-r from-purple-700 to-indigo-800 hover:from-purple-800 hover:to-indigo-900 text-white shadow-md active:scale-95'
+                    ? 'bg-black hover:bg-slate-800 text-white shadow-md active:scale-95'
                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                 }`}
               >
@@ -770,34 +770,34 @@ export const GameView: React.FC<GameViewProps> = ({
           {/* Latest Word Dictionary Card (Image 3 right widget) */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 flex flex-col">
             <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100 mb-3">
-              <BookOpen className="w-4 h-4 text-purple-600" />
-              <h3 className="font-bold text-sm text-[#1e2022]">방금 나온 단어</h3>
+              <BookOpen className="w-4 h-4 text-black" />
+              <h3 className="font-extrabold text-sm text-black">방금 나온 단어</h3>
             </div>
 
             {lastWordItem ? (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-black text-xl text-purple-800">
+                  <span className="font-black text-xl text-black">
                     {lastWordItem.word}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold text-[10px]">
+                  <span className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-black font-bold text-[10px]">
                     {lastWordItem.pos || '명사'}
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-600 font-medium leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p className="text-xs text-slate-700 font-medium leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200">
                   {lastWordItem.definition || '표준국어대사전 및 우리말샘 등재 어휘.'}
                 </p>
 
-                <div className="text-[11px] text-slate-400 font-semibold flex justify-between pt-1">
+                <div className="text-[11px] text-slate-500 font-semibold flex justify-between pt-1">
                   <span>입력: {lastWordItem.playerName}</span>
                   {lastWordItem.isDueum && (
-                    <span className="text-purple-600 font-bold">두음법칙 적용</span>
+                    <span className="text-black font-bold">두음법칙 적용</span>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="text-xs text-slate-400 text-center py-6">
+              <div className="text-xs text-slate-400 text-center py-6 font-medium">
                 첫 번째 단어를 입력하면<br />사전 정보가 표시됩니다.
               </div>
             )}
@@ -806,8 +806,8 @@ export const GameView: React.FC<GameViewProps> = ({
           {/* In-Game Live Chat Panel */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 flex flex-col h-[280px] max-h-[300px] overflow-hidden">
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100 mb-2 shrink-0">
-              <MessageCircle className="w-4 h-4 text-slate-600" />
-              <h4 className="font-bold text-xs text-[#1e2022]">실시간 채팅</h4>
+              <MessageCircle className="w-4 h-4 text-black" />
+              <h4 className="font-black text-xs text-black">실시간 채팅</h4>
             </div>
 
             <div ref={chatScrollContainerRef} className="flex-1 overflow-y-auto space-y-2 text-xs pr-1 min-h-0">
@@ -822,10 +822,10 @@ export const GameView: React.FC<GameViewProps> = ({
                     {msg.senderName}
                   </span>
                   <div
-                    className={`px-2.5 py-1 rounded-lg max-w-[90%] text-xs break-words ${
+                    className={`px-2.5 py-1 rounded-lg max-w-[90%] text-xs break-words font-medium ${
                       msg.senderId === currentPlayerId
-                        ? 'bg-[#1e2022] text-white'
-                        : 'bg-slate-100 text-slate-800'
+                        ? 'bg-black text-white'
+                        : 'bg-slate-100 text-black'
                     }`}
                   >
                     {msg.text}
@@ -841,12 +841,12 @@ export const GameView: React.FC<GameViewProps> = ({
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={handleChatKeyDown}
                 placeholder="채팅..."
-                className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-black font-medium"
               />
               <button
                 type="submit"
                 onMouseDown={(e) => e.preventDefault()}
-                className="p-1.5 bg-[#1e2022] text-white rounded-lg hover:bg-black transition-colors"
+                className="p-1.5 bg-black text-white rounded-lg hover:bg-slate-800 transition-colors"
               >
                 <Send className="w-3 h-3" />
               </button>
