@@ -1,0 +1,7 @@
+{
+  "name": "끝잇기",
+  "description": "2~8인 실시간 온라인 멀티플레이 끝말잇기 게임. 정통 한글 두음법칙과 표준 사전 검증 시스템 지원.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
