@@ -1,5 +1,6 @@
 import { DictionaryWord } from '../types';
 import { KOREAN_LEXICON_EXPANDED } from './koreanLexicon';
+import { COMPREHENSIVE_KOREAN_WORDS } from './koreanLexiconExpanded';
 import { isPureHangul, getInitialConsonant } from './hangulRules';
 import { buildApiUrl } from './apiHelper';
 
@@ -8,6 +9,7 @@ import { buildApiUrl } from './apiHelper';
  * 실제 국어사전 등재 단어 (명사, 외래어, 지리/인물/사물/자연/문화 표준어)
  */
 export const DICTIONARY_DATABASE: DictionaryWord[] = [
+  ...COMPREHENSIVE_KOREAN_WORDS,
   ...KOREAN_LEXICON_EXPANDED,
   // ㄱ
   { word: '가방', pos: '명사', meaning: '물건을 넣어 들고 다니는 용구.', length: 2, firstChar: '가', lastChar: '방', origin: '외래어', source: 'LEXICON' },

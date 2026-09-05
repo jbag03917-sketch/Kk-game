@@ -1023,6 +1023,119 @@ app.get('/api/dict/search', async (req, res) => {
   }
 });
 
+// Cache for live word suggestion candidates
+const serverSuggestCache = new Map<string, any[]>();
+
+// API: 끝말잇기 실시간 추천 단어 검색 (Hack Assistant 및 게임 힌트용)
+app.get('/api/dictionary/suggest', async (req, res) => {
+  const rawChar = String(req.query.char || '').trim();
+  const rawDueum = String(req.query.dueum || '').trim();
+  const chars = Array.from(
+    new Set([rawChar, ...rawDueum.split(',').map((c) => c.trim())].filter((c) => c.length > 0))
+  );
+
+  if (chars.length === 0) {
+    return res.json({ words: [] });
+  }
+
+  const cacheKey = chars.sort().join('|');
+  if (serverSuggestCache.has(cacheKey)) {
+    return res.json({ words: serverSuggestCache.get(cacheKey) });
+  }
+
+  const apiKey = DEFAULT_STDICT_API_KEY;
+  const collectedWords: any[] = [];
+  const seenWords = new Set<string>();
+
+  const fetchWithTimeout = async (url: string) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 1200);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+      return response;
+    } catch {
+      clearTimeout(timeout);
+      return null;
+    }
+  };
+
+  try {
+    for (const ch of chars) {
+      // 1. Check STDict start-with search
+      const stdictUrl = `https://stdict.korean.go.kr/api/search.do?key=${encodeURIComponent(
+        apiKey
+      )}&q=${encodeURIComponent(ch)}&req_type=json&num=40&advanced=y&method=start`;
+
+      // 2. Check OpenDict start-with search
+      const opendictUrl = `https://opendict.korean.go.kr/api/search?key=${encodeURIComponent(
+        apiKey
+      )}&q=${encodeURIComponent(ch)}&req_type=json&num=40&advanced=y&method=start`;
+
+      const [stdRes, openRes] = await Promise.allSettled([
+        fetchWithTimeout(stdictUrl),
+        fetchWithTimeout(opendictUrl),
+      ]);
+
+      const parseItems = async (response: any) => {
+        if (!response || !response.ok) return [];
+        try {
+          const text = await response.text();
+          const data = JSON.parse(text);
+          if (data?.channel?.item && Array.isArray(data.channel.item)) {
+            return data.channel.item;
+          } else if (data?.channel?.item && typeof data.channel.item === 'object') {
+            return [data.channel.item];
+          }
+        } catch {
+          // ignore json parse error
+        }
+        return [];
+      };
+
+      const rawStdItems = stdRes.status === 'fulfilled' ? await parseItems(stdRes.value) : [];
+      const rawOpenItems = openRes.status === 'fulfilled' ? await parseItems(openRes.value) : [];
+
+      const allItems = [...rawStdItems, ...rawOpenItems];
+      for (const it of allItems) {
+        const clean = cleanDictWord(it.word || '');
+        if (clean && clean.length >= 2 && !seenWords.has(clean)) {
+          // Must start with ch or valid char
+          if (clean.startsWith(ch)) {
+            seenWords.add(clean);
+            let def = '';
+            if (Array.isArray(it.sense) && it.sense[0]?.definition) {
+              def = it.sense[0].definition;
+            } else if (it.sense && typeof it.sense === 'object' && it.sense.definition) {
+              def = it.sense.definition;
+            }
+            const lastCh = clean[clean.length - 1];
+            const isAttack = ['륨', '늄', '뮴', '듐', '튬', '녘', '릇', '릎', '탉', '즘', '틱', '쁨', '읖'].includes(lastCh);
+
+            collectedWords.push({
+              word: clean,
+              pos: it.pos && it.pos !== '품사 없음' ? it.pos : '명사',
+              meaning: def || '표준 국어사전 등재 어휘입니다.',
+              length: clean.length,
+              firstChar: clean[0],
+              lastChar: lastCh,
+              isAttack,
+              source: 'STDICT',
+            });
+          }
+        }
+      }
+    }
+
+    // Cache the suggestions
+    serverSuggestCache.set(cacheKey, collectedWords);
+    return res.json({ words: collectedWords });
+  } catch (err: any) {
+    console.error('Suggest API error:', err);
+    return res.json({ words: collectedWords });
+  }
+});
+
 // API: 국립국어원 표준국어대사전 실시간 단어 탐색 (무한 스크롤, 초성별 필터 및 전체 탐색용)
 app.get('/api/dict/explore', async (req, res) => {
   const rawQuery = String(req.query.q || '').trim();

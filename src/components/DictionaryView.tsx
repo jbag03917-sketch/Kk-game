@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion } from 'motion/react';
-import { Search, X, BookOpen, Loader2, RotateCw, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Search, X, BookOpen, Loader2, RotateCw, ChevronDown, Copy, Check, Maximize2, Sparkles, Volume2, ArrowRight } from 'lucide-react';
 import { DictionaryWord } from '../types';
 import { fetchDictionarySearchResults, exploreDictionaryWords } from '../lib/dictionaryData';
 import { getValidStartingChars } from '../lib/hangulRules';
@@ -22,11 +22,22 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [selectedWord, setSelectedWord] = useState<DictionaryWord | null>(null);
+  const [detailModalWord, setDetailModalWord] = useState<DictionaryWord | null>(null);
+  const [copiedWord, setCopiedWord] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const latestRequestIdRef = useRef<number>(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomObserverRef = useRef<HTMLDivElement>(null);
+
+  // Copy word helper
+  const handleCopyWord = (word: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    sounds.playPop();
+    navigator.clipboard.writeText(word);
+    setCopiedWord(word);
+    setTimeout(() => setCopiedWord(null), 2000);
+  };
 
   // 1. Initial / Fresh Search Load
   const loadWords = useCallback(
@@ -196,13 +207,25 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
     loadWords(searchQuery.trim(), 1);
   };
 
+  // Handle clicking a word card
+  const handleWordCardClick = (item: DictionaryWord) => {
+    sounds.playPop();
+    if (selectedWord?.word === item.word) {
+      // Once more click -> open full detail modal!
+      setDetailModalWord(item);
+    } else {
+      // First click -> expand card inline
+      setSelectedWord(item);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs select-none">
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 10 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 10 }}
-        className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-300 overflow-hidden flex flex-col max-h-[92vh] h-[850px]"
+        className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-300 overflow-hidden flex flex-col max-h-[92vh] h-[850px] relative"
       >
         {/* 1. TOP HEADER BANNER (헤더 + 새로고침 버튼 + 닫기 X 버튼) */}
         <div className="bg-white px-4 sm:px-6 py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0">
@@ -220,7 +243,7 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                 </span>
               </div>
               <span className="text-[11px] text-slate-500 font-semibold sm:hidden block">
-                스크롤하면 단어가 계속 이어져요
+                단어를 누르면 전체 설명을 확인할 수 있어요
               </span>
             </div>
           </div>
@@ -327,13 +350,10 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                     <motion.div
                       key={`${item.word}-${idx}`}
                       whileHover={{ scale: 1.01, y: -1 }}
-                      onClick={() => {
-                        sounds.playPop();
-                        setSelectedWord(isSelected ? null : item);
-                      }}
+                      onClick={() => handleWordCardClick(item)}
                       className={`p-3.5 sm:p-4 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-slate-100 border-black shadow-sm ring-1 ring-black'
+                          ? 'bg-slate-100 border-black shadow-md ring-2 ring-black/20'
                           : 'bg-white hover:bg-slate-50 border-slate-200 hover:border-slate-400 shadow-2xs'
                       }`}
                     >
@@ -355,6 +375,10 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                               {item.origin}
                             </span>
                           )}
+
+                          <span className="px-1.5 py-0.5 rounded-md bg-slate-200 text-slate-700 font-extrabold text-[9px]">
+                            {item.word.length}글자
+                          </span>
                         </div>
 
                         {/* Next Starters */}
@@ -368,10 +392,63 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                         </div>
                       </div>
 
-                      {/* Definition Text */}
-                      <div className="text-slate-700 text-xs leading-relaxed line-clamp-2 pl-2 border-l-2 border-slate-300">
+                      {/* Definition Text (Full definition if selected, line-clamp if collapsed) */}
+                      <div
+                        className={`text-slate-800 text-xs leading-relaxed pl-2.5 border-l-2 ${
+                          isSelected
+                            ? 'border-black font-medium text-slate-900 bg-white/70 p-2 rounded-r-xl'
+                            : 'border-slate-300 text-slate-700 line-clamp-2'
+                        }`}
+                      >
                         {item.meaning || '국립국어원 표준국어대사전에 등재된 공식 단어입니다.'}
                       </div>
+
+                      {/* Expanded View Extra Details & Action Buttons (Shown when clicked) */}
+                      {isSelected && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          className="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs"
+                        >
+                          <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-semibold">
+                            <span>💡 한번 더 누르면 전체 창으로 보기</span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={(e) => handleCopyWord(item.word, e)}
+                              className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-200 border border-slate-300 text-slate-800 font-bold text-[11px] flex items-center gap-1 transition-colors"
+                              title="단어 복사"
+                            >
+                              {copiedWord === item.word ? (
+                                <>
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                  <span className="text-emerald-700 font-bold">복사됨</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3 text-slate-600" />
+                                  <span>복사</span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                sounds.playPop();
+                                setDetailModalWord(item);
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-black hover:bg-slate-800 text-white font-bold text-[11px] flex items-center gap-1 transition-colors shadow-2xs"
+                            >
+                              <Maximize2 className="w-3 h-3" />
+                              <span>전체 설명 보기</span>
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
                     </motion.div>
                   );
                 })}
@@ -417,7 +494,146 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
             <span>표시된 단어: {words.length}개</span>
           </div>
         </div>
+
+        {/* 5. FULL WORD DETAIL MODAL (단어를 한번 더 누르거나 [전체 설명 보기]를 누르면 열리는 상세 모달) */}
+        <AnimatePresence>
+          {detailModalWord && (
+            <div
+              className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
+              onClick={() => setDetailModalWord(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 15 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 15 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-300 p-5 sm:p-6 flex flex-col gap-4 overflow-hidden max-h-[85vh]"
+              >
+                {/* Modal Header */}
+                <div className="flex items-start justify-between pb-3 border-b border-slate-100">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h3 className="font-black text-2xl sm:text-3xl text-black tracking-tight">
+                        {detailModalWord.word}
+                      </h3>
+                      {detailModalWord.pos && (
+                        <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-black font-extrabold text-xs border border-slate-300">
+                          {detailModalWord.pos}
+                        </span>
+                      )}
+                      {detailModalWord.origin && (
+                        <span className="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 font-bold text-xs border border-slate-200">
+                          {detailModalWord.origin}
+                        </span>
+                      )}
+                      <span className="px-2 py-0.5 rounded-lg bg-slate-200 text-slate-800 font-extrabold text-xs">
+                        {detailModalWord.word.length}글자 단어
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-500">
+                      출처: 국립국어원 표준국어대사전 & 우리말샘
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sounds.playPop();
+                      setDetailModalWord(null);
+                    }}
+                    className="p-1.5 rounded-xl text-slate-400 hover:text-black hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Full Explanation Body */}
+                <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+                  <div>
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-1.5">
+                      단어 전체 뜻풀이
+                    </h4>
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm sm:text-base font-semibold text-slate-900 leading-relaxed">
+                      {detailModalWord.meaning || '국립국어원 표준국어대사전에 등재된 공식 단어입니다.'}
+                    </div>
+                  </div>
+
+                  {/* Word Chain Rules Breakdown */}
+                  <div>
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-1.5">
+                      끝말잇기 연계 정보
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-1">
+                        <span className="text-slate-500 font-bold">시작 음절</span>
+                        <span className="font-black text-sm text-black">
+                          {detailModalWord.word[0]}
+                        </span>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-1">
+                        <span className="text-slate-500 font-bold">끝 음절</span>
+                        <span className="font-black text-sm text-black">
+                          {detailModalWord.word.slice(-1)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Next Valid Starting Syllables (두음법칙 포함) */}
+                  <div>
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-1.5">
+                      이 단어 다음에 올 수 있는 시작 글자 (두음법칙 적용)
+                    </h4>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {getValidStartingChars(detailModalWord.word.slice(-1)).map((ch) => (
+                        <span
+                          key={ch}
+                          className="px-3 py-1.5 rounded-xl bg-black text-white font-black text-xs shadow-2xs"
+                        >
+                          「{ch}」 로 시작
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Footer Actions */}
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => handleCopyWord(detailModalWord.word, e)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    {copiedWord === detailModalWord.word ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-600" />
+                        <span className="text-emerald-700">복사 완료</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 text-slate-600" />
+                        <span>단어 복사하기</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sounds.playPop();
+                      setDetailModalWord(null);
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-black hover:bg-slate-800 text-white font-black text-xs transition-colors cursor-pointer shadow-xs"
+                  >
+                    확인 및 닫기
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   );
 };
+
