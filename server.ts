@@ -538,8 +538,8 @@ app.post('/api/rooms/:id/action', (req, res) => {
       room.usedWords.push(word);
       room.lastWord = word;
 
-      // Calculate dynamic turn duration: 15.0s -> 5.0s (-0.2s each word)
-      const newDuration = Math.max(5.0, Number((15.0 - (room.wordChain.length * 0.2)).toFixed(1)));
+      // Calculate dynamic turn duration: 15.0s -> 5.0s (-0.3s each word)
+      const newDuration = Math.max(5.0, Number((15.0 - (room.wordChain.length * 0.3)).toFixed(1)));
       room.turnDuration = newDuration;
 
       // Update player score & wordsUsed (10 points per char + 5 dueum bonus)

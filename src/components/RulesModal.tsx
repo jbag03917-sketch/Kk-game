@@ -50,7 +50,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
               </div>
               <div className="bg-white p-2 rounded-xl border border-purple-200/60">
                 <div className="text-[10px] text-slate-400 font-semibold">제한 시간</div>
-                <div className="font-bold text-rose-600 text-[11px]">15.0s → 5.0s (-0.4s/턴)</div>
+                <div className="font-bold text-rose-600 text-[11px]">15.0s → 5.0s (-0.3s/턴)</div>
               </div>
               <div className="bg-white p-2 rounded-xl border border-purple-200/60">
                 <div className="text-[10px] text-slate-400 font-semibold">최소 단어</div>

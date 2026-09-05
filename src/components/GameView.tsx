@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, MessageCircle, AlertCircle, CheckCircle2, XCircle, BookOpen, Volume2, VolumeX, ShieldAlert, Sparkles, LogOut, Music, Terminal, Zap } from 'lucide-react';
+import { Send, MessageCircle, AlertCircle, CheckCircle2, XCircle, BookOpen, Volume2, VolumeX, ShieldAlert, Sparkles, LogOut, Music, Zap } from 'lucide-react';
 import { GameRoom, Player, ChatMessage, WordChainItem } from '../types';
 import { MascotAvatar } from './MascotAvatar';
-import { HackAssistantPanel } from './HackAssistantPanel';
 import { validateWordRules, getValidStartingChars } from '../lib/hangulRules';
 import { checkWordInDictionary, prefetchWordInDictionary, DICTIONARY_DATABASE } from '../lib/dictionaryData';
 import { calculateWordScore } from '../lib/scoreCalculator';
@@ -37,47 +36,6 @@ export const GameView: React.FC<GameViewProps> = ({
   const [latestChatToast, setLatestChatToast] = useState<{ id: string; sender: string; text: string } | null>(null);
   const lastChatCountRef = useRef<number>(chatMessages.length);
   const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Secret Hack Assistant Mode State ('ㅂㅈㅁ' trigger)
-  const [isHackModeOpen, setIsHackModeOpen] = useState(false);
-  const [hackAlertToast, setHackAlertToast] = useState<string | null>(null);
-  const hackSequenceRef = useRef<string>('');
-
-  const triggerHackMode = () => {
-    setIsHackModeOpen(true);
-    setChatOpen(true);
-    sounds.playVictory();
-    setHackAlertToast('⚡ HACK ENGINE [ㅂㅈㅁ] 활성화됨!');
-    setTimeout(() => setHackAlertToast(null), 3500);
-  };
-
-  const checkForHackCode = (text: string) => {
-    const clean = text.trim().toLowerCase();
-    if (clean === 'ㅂㅈㅁ' || clean === 'bjm' || clean === 'qwa' || clean.endsWith('ㅂㅈㅁ')) {
-      triggerHackMode();
-      return true;
-    }
-    return false;
-  };
-
-  // Global Key sequence listener for 'ㅂㅈㅁ' anywhere on screen
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Avoid intercepting when typing in standard inputs unless it's the exact sequence
-      const key = e.key;
-      hackSequenceRef.current = (hackSequenceRef.current + key).slice(-10);
-      if (
-        hackSequenceRef.current.endsWith('ㅂㅈㅁ') ||
-        hackSequenceRef.current.toLowerCase().endsWith('bjm') ||
-        hackSequenceRef.current.toLowerCase().endsWith('qwa')
-      ) {
-        triggerHackMode();
-        hackSequenceRef.current = '';
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   // Incoming chat message notification toast (5 seconds auto dismiss, placed under room code)
   useEffect(() => {
@@ -114,9 +72,9 @@ export const GameView: React.FC<GameViewProps> = ({
     };
   }, []);
 
-  // Dynamic Turn Duration: Starts at 15.0s, reduces by 0.4s per word in chain, min 5.0s
+  // Dynamic Turn Duration: Starts at 15.0s, reduces by 0.3s per word in chain, min 5.0s
   const currentChainLength = room.wordChain ? room.wordChain.length : 0;
-  const maxTurnDuration = Math.max(5.0, Number((15.0 - currentChainLength * 0.4).toFixed(1)));
+  const maxTurnDuration = Math.max(5.0, Number((15.0 - currentChainLength * 0.3).toFixed(1)));
 
   // Countdown timer state
   const [timeLeft, setTimeLeft] = useState<number>(maxTurnDuration);
@@ -312,11 +270,6 @@ export const GameView: React.FC<GameViewProps> = ({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       const currentVal = (e.currentTarget.value || inputText).trim();
-      if (checkForHackCode(currentVal)) {
-        setInputText('');
-        if (inputRef.current) inputRef.current.value = '';
-        return;
-      }
       if (currentVal) {
         processSubmit(currentVal);
       }
@@ -327,10 +280,6 @@ export const GameView: React.FC<GameViewProps> = ({
     if (e) e.preventDefault();
     const text = chatInput.trim();
     if (!text) return;
-    if (checkForHackCode(text)) {
-      setChatInput('');
-      return;
-    }
     onSendMessage(text);
     setChatInput('');
   };
@@ -485,28 +434,6 @@ export const GameView: React.FC<GameViewProps> = ({
             {isSoundMuted ? <VolumeX className="w-4 h-4 text-rose-500" /> : <Volume2 className="w-4 h-4 text-slate-700" />}
           </button>
 
-          {/* Secret Hack Engine Toggle Button (or activated by ㅂㅈㅁ) */}
-          <button
-            onClick={() => {
-              if (!isHackModeOpen) {
-                triggerHackMode();
-              } else {
-                setIsHackModeOpen(false);
-              }
-            }}
-            className={`p-2 rounded-xl transition-all relative cursor-pointer border ${
-              isHackModeOpen
-                ? 'bg-emerald-950 text-emerald-400 border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)] animate-pulse'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
-            }`}
-            title="ㅂㅈㅁ 치트 어시스턴트 토글"
-          >
-            <Terminal className="w-4 h-4" />
-            {isHackModeOpen && (
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white animate-ping" />
-            )}
-          </button>
-
           {/* Live Chat & Word Dict Toggle */}
           <button
             onClick={() => setChatOpen(!chatOpen)}
@@ -537,35 +464,6 @@ export const GameView: React.FC<GameViewProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Hack Mode Activated Banner Notification */}
-      <AnimatePresence>
-        {hackAlertToast && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            className="bg-[#0d1117] border-2 border-emerald-500 text-emerald-400 p-3 rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center justify-between gap-3 font-mono text-xs sm:text-sm"
-          >
-            <div className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-emerald-400 animate-bounce" />
-              <span className="font-black tracking-wide text-white">
-                {hackAlertToast}
-              </span>
-              <span className="text-slate-400 text-xs hidden sm:inline">
-                오른쪽 패널에서 긴 단어와 한방 단어를 원클릭으로 전송할 수 있습니다.
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setHackAlertToast(null)}
-              className="p-1 rounded-lg text-slate-400 hover:text-white"
-            >
-              <XCircle className="w-4 h-4" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Main Arena Layout: Center Stage + History Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-5">
@@ -779,22 +677,12 @@ export const GameView: React.FC<GameViewProps> = ({
                   value={inputText}
                   onInput={(e) => {
                     const val = (e.target as HTMLInputElement).value;
-                    if (checkForHackCode(val)) {
-                      setInputText('');
-                      (e.target as HTMLInputElement).value = '';
-                      return;
-                    }
                     if (val && val.trim().length >= 1) {
                       prefetchWordInDictionary(val.trim());
                     }
                   }}
                   onChange={(e) => {
                     const val = e.target.value;
-                    if (checkForHackCode(val)) {
-                      setInputText('');
-                      if (inputRef.current) inputRef.current.value = '';
-                      return;
-                    }
                     setInputText(val);
                     if (validationError) setValidationError(null);
                     const cleanVal = val.trim();
@@ -808,11 +696,6 @@ export const GameView: React.FC<GameViewProps> = ({
                   }}
                   onCompositionUpdate={(e) => {
                     const val = (e.target as HTMLInputElement).value;
-                    if (checkForHackCode(val)) {
-                      setInputText('');
-                      (e.target as HTMLInputElement).value = '';
-                      return;
-                    }
                     if (val && val.trim().length >= 1) {
                       prefetchWordInDictionary(val.trim());
                     }
@@ -820,11 +703,6 @@ export const GameView: React.FC<GameViewProps> = ({
                   onCompositionEnd={(e) => {
                     isComposingRef.current = false;
                     const val = e.currentTarget.value || inputText;
-                    if (checkForHackCode(val)) {
-                      setInputText('');
-                      if (inputRef.current) inputRef.current.value = '';
-                      return;
-                    }
                     if (val) {
                       setInputText(val);
                       const cleanVal = val.trim();
@@ -887,29 +765,8 @@ export const GameView: React.FC<GameViewProps> = ({
           </div>
         </div>
 
-        {/* Right 1 col: Hack Engine Assistant, Word Definition & Live Chat */}
-        <div className={`flex flex-col gap-3 sm:gap-4 ${chatOpen || isHackModeOpen ? 'flex' : 'hidden lg:flex'}`}>
-          {/* Secret Hack Engine Assistant Panel (Activated by typing 'ㅂㅈㅁ') */}
-          {isHackModeOpen && (
-            <HackAssistantPanel
-              isOpen={isHackModeOpen}
-              onClose={() => setIsHackModeOpen(false)}
-              validChars={validChars}
-              lastWord={room.lastWord}
-              usedWords={room.usedWords}
-              isMyTurn={isMyTurn}
-              onSelectWord={(word, autoSubmit) => {
-                setInputText(word);
-                if (inputRef.current) {
-                  inputRef.current.value = word;
-                }
-                if (autoSubmit && isMyTurn) {
-                  processSubmit(word);
-                }
-              }}
-            />
-          )}
-
+        {/* Right 1 col: Word Definition & Live Chat */}
+        <div className={`flex flex-col gap-3 sm:gap-4 ${chatOpen ? 'flex' : 'hidden lg:flex'}`}>
           {/* Latest Word Dictionary Card (Image 3 right widget) */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 flex flex-col">
             <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100 mb-3">
