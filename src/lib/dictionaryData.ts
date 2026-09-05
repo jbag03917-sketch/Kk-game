@@ -1,6 +1,6 @@
 import { DictionaryWord } from '../types';
 import { KOREAN_LEXICON_EXPANDED } from './koreanLexicon';
-import { isPureHangul } from './hangulRules';
+import { isPureHangul, getInitialConsonant } from './hangulRules';
 import { buildApiUrl } from './apiHelper';
 
 /**
@@ -422,13 +422,13 @@ async function fetchClientSideDictionaryFallback(
 }
 
 /**
- * 단어 백그라운드 프리패치 (2글자 이상 입력 시 즉시 호출되어 사전 검증을 미리 완료해둠)
+ * 단어 백그라운드 프리패치 (자음, 모음, 1글자 이상 입력 즉시 호출되어 사전 검증을 미리 완료해둠)
  * - 이미 메모리나 캐시에 있으면 네트워크 요청 생략
  * - 아직 없으면 백그라운드에서 API 호출 후 캐시 저장
  */
 export function prefetchWordInDictionary(word: string): void {
   const trimmed = cleanDictWord(word);
-  if (trimmed.length < 2) return;
+  if (!trimmed || trimmed.length < 1) return;
 
   // 1. 이미 내장 사전 또는 캐시에 있으면 불필요
   if (DICTIONARY_MAP.has(trimmed) || REAL_API_WORD_CACHE.has(trimmed)) {
@@ -464,8 +464,8 @@ export async function checkWordInDictionary(
   source?: 'STDICT' | 'WIKTIONARY' | 'LEXICON';
 }> {
   const trimmed = cleanDictWord(word);
-  if (trimmed.length < 2) {
-    return { isValid: false, reason: '단어는 최소 2글자 이상이어야 합니다.' };
+  if (!trimmed || trimmed.length < 1) {
+    return { isValid: false, reason: '단어를 입력해주세요.' };
   }
 
   // 1. 내장 표준 사전 즉시 조회 (0ms)
@@ -622,18 +622,24 @@ export async function fetchDictionarySearchResults(
 }
 
 /**
- * 실시간 국립국어원 사전 탐색 (스크롤 시 단어 추가 로드)
+ * 실시간 국립국어원 사전 탐색 (스크롤 시 단어 추가 로드 및 초성별 탐색 지원)
  */
 export async function exploreDictionaryWords(
   page: number = 1,
   query: string = '',
+  choseong: string = '',
   signal?: AbortSignal
 ): Promise<{ words: DictionaryWord[]; hasMore: boolean }> {
   const trimmed = cleanDictWord(query);
+  const cleanChoseong = choseong && choseong !== '전체' ? choseong.trim() : '';
 
   try {
     const res = await fetch(
-      buildApiUrl(`/api/dict/explore?page=${page}&num=20&q=${encodeURIComponent(trimmed)}`),
+      buildApiUrl(
+        `/api/dict/explore?page=${page}&num=20&q=${encodeURIComponent(
+          trimmed
+        )}&choseong=${encodeURIComponent(cleanChoseong)}`
+      ),
       { signal }
     );
     if (res.ok) {
@@ -651,17 +657,22 @@ export async function exploreDictionaryWords(
 
   // 정적 환경 Fallback: 내장 표준 어휘 데이터베이스에서 페이징
   const pageSize = 20;
-  const filtered = trimmed
-    ? DICTIONARY_DATABASE.filter(
-        (w) => w.word.includes(trimmed) || w.meaning.includes(trimmed)
-      )
-    : DICTIONARY_DATABASE;
+  let filtered = DICTIONARY_DATABASE;
+  if (trimmed) {
+    filtered = filtered.filter(
+      (w) => w.word.includes(trimmed) || w.meaning.includes(trimmed)
+    );
+  } else if (cleanChoseong) {
+    filtered = filtered.filter(
+      (w) => getInitialConsonant(w.word[0]) === cleanChoseong
+    );
+  }
 
   const startIndex = (page - 1) * pageSize;
   const pageWords = filtered.slice(startIndex, startIndex + pageSize);
   return {
     words: pageWords,
-    hasMore: startIndex + pageSize < filtered.length,
+    hasMore: startIndex + pageSize < filtered.length || pageWords.length === pageSize,
   };
 }
 

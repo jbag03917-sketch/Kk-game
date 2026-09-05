@@ -51,6 +51,21 @@ export function composeHangul(initialIdx: number, medialIdx: number, finalIdx: n
   return String.fromCharCode(code);
 }
 
+/**
+ * 음절의 대표 초성 추출 (ㄱ, ㄴ, ㄷ, ㄹ, ㅁ, ㅂ, ㅅ, ㅇ, ㅈ, ㅊ, ㅋ, ㅌ, ㅍ, ㅎ)
+ */
+export function getInitialConsonant(char: string): string {
+  if (!char) return '';
+  const decomp = decomposeHangul(char[0]);
+  if (!decomp) return char[0];
+  if (decomp.initial === 'ㄲ') return 'ㄱ';
+  if (decomp.initial === 'ㄸ') return 'ㄷ';
+  if (decomp.initial === 'ㅃ') return 'ㅂ';
+  if (decomp.initial === 'ㅆ') return 'ㅅ';
+  if (decomp.initial === 'ㅉ') return 'ㅈ';
+  return decomp.initial;
+}
+
 // 명시적 두음법칙 매핑 사전 (자주 쓰이는 주요 음절 및 변형)
 const EXPLICIT_DUEUM_MAP: Record<string, string[]> = {
   // ㄹ -> ㅇ (모음: ㅑ, ㅕ, ㅖ, ㅛ, ㅠ, ㅣ 등)

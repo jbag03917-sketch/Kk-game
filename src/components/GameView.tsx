@@ -677,7 +677,7 @@ export const GameView: React.FC<GameViewProps> = ({
                   value={inputText}
                   onInput={(e) => {
                     const val = (e.target as HTMLInputElement).value;
-                    if (val && val.trim().length >= 2) {
+                    if (val && val.trim().length >= 1) {
                       prefetchWordInDictionary(val.trim());
                     }
                   }}
@@ -686,7 +686,7 @@ export const GameView: React.FC<GameViewProps> = ({
                     setInputText(val);
                     if (validationError) setValidationError(null);
                     const cleanVal = val.trim();
-                    if (cleanVal.length >= 2) {
+                    if (cleanVal.length >= 1) {
                       prefetchWordInDictionary(cleanVal);
                     }
                   }}
@@ -696,7 +696,7 @@ export const GameView: React.FC<GameViewProps> = ({
                   }}
                   onCompositionUpdate={(e) => {
                     const val = (e.target as HTMLInputElement).value;
-                    if (val && val.trim().length >= 2) {
+                    if (val && val.trim().length >= 1) {
                       prefetchWordInDictionary(val.trim());
                     }
                   }}
@@ -706,7 +706,7 @@ export const GameView: React.FC<GameViewProps> = ({
                     if (val) {
                       setInputText(val);
                       const cleanVal = val.trim();
-                      if (cleanVal.length >= 2) {
+                      if (cleanVal.length >= 1) {
                         prefetchWordInDictionary(cleanVal);
                       }
                     }

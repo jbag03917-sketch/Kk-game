@@ -780,10 +780,10 @@ export function App() {
         } else if (type === 'PLAYER_TIMEOUT' && data?.targetPlayerId) {
           setActiveRoom((prev) => {
             if (!prev) return prev;
-            const penalty = 100;
+            const penalty = 600;
             const updatedPlayers = prev.currentPlayers.map((p) =>
               p.id === data.targetPlayerId
-                ? { ...p, score: p.score - penalty, isAlive: false, eliminatedReason: '시간 초과 (-100점)' }
+                ? { ...p, score: p.score - penalty, isAlive: false, eliminatedReason: '시간 초과 (-600점)' }
                 : p
             );
             const alive = updatedPlayers.filter((p) => p.isAlive);
@@ -1385,15 +1385,15 @@ export function App() {
     broadcastRoomEvent('SYNC_ROOM', { room: updatedRoom });
   };
 
-  // Player Timeout / Elimination with score deduction (-74점) and Multi-round progression
+  // Player Timeout / Elimination with score deduction (-600점) and Multi-round progression
   const handlePlayerTimeout = (playerId: string) => {
     if (!activeRoom) return;
 
-    const penaltyPoints = 100;
+    const penaltyPoints = 600;
     const currentChainLength = activeRoom.wordChain ? activeRoom.wordChain.length : 0;
     const currentTurnDuration = Math.max(5.0, Number((15.0 - currentChainLength * 0.4).toFixed(1)));
 
-    // Score deduction for loser (-100점)
+    // Score deduction for loser (-600점)
     const updatedPlayers = activeRoom.currentPlayers.map((p) => {
       if (p.id === playerId) {
         return {
@@ -1770,14 +1770,6 @@ export function App() {
                   className="text-slate-600 hover:text-black transition-colors cursor-pointer"
                 >
                   저작권 및 공공데이터 이용정책
-                </button>
-                <span className="text-slate-300">|</span>
-                <button
-                  type="button"
-                  onClick={() => handleOpenLegalDoc('API_POLICY')}
-                  className="text-slate-600 hover:text-black transition-colors cursor-pointer"
-                >
-                  API 키 사용 규정
                 </button>
                 <span className="text-slate-300">|</span>
                 <button

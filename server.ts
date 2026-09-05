@@ -566,14 +566,14 @@ app.post('/api/rooms/:id/action', (req, res) => {
     }
   } else if (action === 'PLAYER_TIMEOUT') {
     const { targetPlayerId } = payload;
-    const penaltyPoints = 100;
+    const penaltyPoints = 600;
     room.currentPlayers = room.currentPlayers.map((p) =>
       p.id === targetPlayerId
         ? {
             ...p,
             score: p.score - penaltyPoints,
             isAlive: false,
-            eliminatedReason: '시간 초과 (-100점)',
+            eliminatedReason: '시간 초과 (-600점)',
           }
         : p
     );
@@ -1023,24 +1023,45 @@ app.get('/api/dict/search', async (req, res) => {
   }
 });
 
-// API: 국립국어원 표준국어대사전 실시간 단어 탐색 (무한 스크롤 및 전체 탐색용)
+// API: 국립국어원 표준국어대사전 실시간 단어 탐색 (무한 스크롤, 초성별 필터 및 전체 탐색용)
 app.get('/api/dict/explore', async (req, res) => {
   const rawQuery = String(req.query.q || '').trim();
   const query = cleanDictWord(rawQuery);
+  const rawChoseong = String(req.query.choseong || '').trim();
+  const choseong = rawChoseong && rawChoseong !== '전체' ? rawChoseong : '';
   const page = Math.max(1, parseInt(String(req.query.page || '1'), 10));
   const num = Math.min(30, Math.max(10, parseInt(String(req.query.num || '20'), 10)));
   const apiKey = DEFAULT_STDICT_API_KEY;
 
-  // Search keyword or cyclical seed prefixes across Korean syllables
-  const SEED_PREFIXES = ['가', '나', '다', '라', '마', '바', '사', '아', '자', '차', '카', '타', '파', '하', '거', '너', '더', '러', '머', '버', '서', '어', '저', '처', '고', '노', '도', '로', '모', '보', '소', '오', '조', '초'];
-  const searchChar = query || SEED_PREFIXES[(page - 1) % SEED_PREFIXES.length];
+  const CHOSEONG_SEEDS_MAP: Record<string, string[]> = {
+    'ㄱ': ['가', '개', '고', '구', '기', '거', '교', '과', '관', '국', '글', '길', '그', '감', '강', '계', '귀', '금'],
+    'ㄴ': ['나', '내', '노', '누', '니', '너', '뇌', '농', '능', '낙', '남', '냉', '녹', '눈', '느'],
+    'ㄷ': ['다', '대', '도', '두', '디', '더', '독', '동', '달', '단', '당', '돌', '등', '드', '덕'],
+    'ㄹ': ['라', '레', '로', '루', '리', '러', '료', '류', '란', '록', '량', '력', '련', '람'],
+    'ㅁ': ['마', '매', '모', '무', '미', '머', '목', '문', '물', '명', '망', '말', '묘', '미'],
+    'ㅂ': ['바', '배', '보', '부', '비', '버', '백', '방', '복', '불', '발', '변', '별', '병'],
+    'ㅅ': ['사', '새', '소', '수', '시', '서', '상', '산', '성', '식', '선', '송', '신', '심'],
+    'ㅇ': ['아', '애', '오', '우', '이', '어', '여', '유', '안', '은', '인', '양', '연', '영', '월', '일'],
+    'ㅈ': ['자', '재', '조', '주', '지', '저', '장', '정', '중', '작', '진', '전', '점', '절'],
+    'ㅊ': ['차', '채', '초', '추', '치', '처', '청', '축', '천', '체', '철', '출', '창', '측'],
+    'ㅋ': ['카', '캐', '코', '쿠', '키', '커', '콩', '칼', '캠', '킹', '쾌', '컴'],
+    'ㅌ': ['타', '태', '토', '투', '티', '터', '통', '탁', '탈', '탑', '탐', '특', '태'],
+    'ㅍ': ['파', '패', '포', '푸', '피', '퍼', '풍', '판', '표', '품', '폭', '필', '평'],
+    'ㅎ': ['하', '해', '호', '후', '히', '허', '화', '항', '학', '행', '해', '황', '효', '환'],
+  };
+
+  const DEFAULT_SEEDS = ['가', '나', '다', '라', '마', '바', '사', '아', '자', '차', '카', '타', '파', '하', '고', '노', '도', '로', '모', '보', '소', '오', '조', '초', '구', '누', '두', '루', '무', '부', '수', '우', '주', '추', '기', '니', '디', '리', '미', '비', '시', '이', '지', '치'];
+
+  const targetSeeds = choseong && CHOSEONG_SEEDS_MAP[choseong] ? CHOSEONG_SEEDS_MAP[choseong] : DEFAULT_SEEDS;
+  const searchChar = query || targetSeeds[(page - 1) % targetSeeds.length];
+  const offsetPage = Math.floor((page - 1) / targetSeeds.length) + 1;
 
   try {
     const stdictUrl = `https://stdict.korean.go.kr/api/search.do?key=${encodeURIComponent(
       apiKey
     )}&q=${encodeURIComponent(
       searchChar
-    )}&req_type=json&advanced=y&method=start&type1=word&start=${page}&num=${num}`;
+    )}&req_type=json&advanced=y&method=start&type1=word&start=${offsetPage}&num=${num}`;
 
     const response = await fetch(stdictUrl, {
       headers: { Accept: 'application/json' },

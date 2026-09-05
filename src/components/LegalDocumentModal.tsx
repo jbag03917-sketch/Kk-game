@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
-export type LegalDocType = 'TERMS' | 'COPYRIGHT' | 'API_POLICY' | 'PRIVACY';
+export type LegalDocType = 'TERMS' | 'COPYRIGHT' | 'PRIVACY';
 
 interface LegalDocumentModalProps {
   isOpen: boolean;
@@ -54,17 +54,6 @@ export const LegalDocumentModal: React.FC<LegalDocumentModalProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setActiveDoc('API_POLICY')}
-              className={`px-3 py-1.5 text-xs sm:text-sm font-medium border-b-2 transition-colors cursor-pointer ${
-                activeDoc === 'API_POLICY'
-                  ? 'border-neutral-900 text-neutral-900 font-bold'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-800'
-              }`}
-            >
-              API 키 사용 안내
-            </button>
-            <button
-              type="button"
               onClick={() => setActiveDoc('PRIVACY')}
               className={`px-3 py-1.5 text-xs sm:text-sm font-medium border-b-2 transition-colors cursor-pointer ${
                 activeDoc === 'PRIVACY'
@@ -90,7 +79,6 @@ export const LegalDocumentModal: React.FC<LegalDocumentModalProps> = ({
         <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-white text-neutral-900 leading-relaxed text-sm">
           {activeDoc === 'TERMS' && <TermsOfServiceDoc />}
           {activeDoc === 'COPYRIGHT' && <CopyrightPolicyDoc />}
-          {activeDoc === 'API_POLICY' && <ApiKeyPolicyDoc />}
           {activeDoc === 'PRIVACY' && <PrivacyPolicyDoc />}
         </div>
 
@@ -239,55 +227,7 @@ const CopyrightPolicyDoc: React.FC = () => (
   </div>
 );
 
-/* Document 3: API 키 사용 및 연동 규정 */
-const ApiKeyPolicyDoc: React.FC = () => (
-  <div className="space-y-6">
-    <div className="border-b border-neutral-300 pb-4">
-      <h1 className="text-xl font-bold text-neutral-900">Open API 키 사용 및 사전 데이터 처리 규정</h1>
-      <p className="text-xs text-neutral-500 mt-1">시행일자: 2026년 1월 1일 | 최종 개정일자: 2026년 8월 28일</p>
-    </div>
-
-    <section className="space-y-2">
-      <h2 className="font-bold text-neutral-900">제1조 (목적)</h2>
-      <p className="text-neutral-700">
-        본 규정은 국립국어원 표준국어대사전 개발 지원(Open API) 인증키의 발급, 보안 관리, 서버 측 프록시(Proxy) 연동 및 트래픽 제어 원칙을 수립함을 목적으로 합니다.
-      </p>
-    </section>
-
-    <section className="space-y-2">
-      <h2 className="font-bold text-neutral-900">제2조 (API 키의 취득 및 보관)</h2>
-      <ol className="list-decimal list-inside space-y-1 text-neutral-700 pl-1">
-        <li>본 서비스에서 활용하는 API 키는 국립국어원 표준국어대사전 개발자 포털을 통해 정식으로 승인 및 발급받은 인증키입니다.</li>
-        <li>API 인증키는 클라이언트 브라우저 환경에 절대 직접 노출되지 않으며, 백엔드 서버(Node.js/Express) 환경변수(`STDICT_API_KEY`)를 통해서만 안전하게 보관 및 호출됩니다.</li>
-      </ol>
-    </section>
-
-    <section className="space-y-2">
-      <h2 className="font-bold text-neutral-900">제3조 (서버 프록시 연동 및 보안)</h2>
-      <ol className="list-decimal list-inside space-y-1 text-neutral-700 pl-1">
-        <li>클라이언트의 단어 검증 요청(`/api/dict/search`, `/api/dict/validate`)은 전량 서버 측 프록시 라우트를 경유하여 공공데이터 서버로 암호화(HTTPS) 통신됩니다.</li>
-        <li>이용자의 비인가 키 탈취 또는 스크립트를 통한 무단 조회를 방지하기 위하여 입력값 유효성 검사 및 서버 측 요청 정제 작업을 거칩니다.</li>
-      </ol>
-    </section>
-
-    <section className="space-y-2">
-      <h2 className="font-bold text-neutral-900">제4조 (트래픽 관리 및 서버 캐싱 정책)</h2>
-      <ol className="list-decimal list-inside space-y-1 text-neutral-700 pl-1">
-        <li>국립국어원 공공 서버의 부하를 최소화하고 빠른 응답 속도를 유지하기 위하여, 빈번히 검증되는 표준 표제어는 인메모리 캐시(LRU/TTL) 및 내장 어휘 인덱스를 통해 우선 판정합니다.</li>
-        <li>초당 과도한 요청을 발생시키는 비정상 트래픽에 대해서는 레이트 리밋(Rate Limit)을 적용하여 차단할 수 있습니다.</li>
-      </ol>
-    </section>
-
-    <section className="space-y-2">
-      <h2 className="font-bold text-neutral-900">제5조 (API 운영 중단 및 정책 변경 시 대응)</h2>
-      <p className="text-neutral-700">
-        국립국어원의 사전 개정 작업, 점검 또는 API 운영 정책 변경으로 인해 실시간 조회가 일시 불가할 경우, 서비스에 사전 탑재된 표준 어휘 데이터베이스를 통해 오프라인 판정 모드로 자동 전환하여 서비스 연속성을 보장합니다.
-      </p>
-    </section>
-  </div>
-);
-
-/* Document 4: 개인정보 처리방침 */
+/* Document 3: 개인정보 처리방침 */
 const PrivacyPolicyDoc: React.FC = () => (
   <div className="space-y-6">
     <div className="border-b border-neutral-300 pb-4">
