@@ -744,7 +744,7 @@ export function App() {
 
             const newUsed = [...prev.usedWords, newItem.word];
             const newChain = [...prev.wordChain, newItem];
-            const newDuration = Math.max(5.0, Number((15.0 - newChain.length * 0.4).toFixed(1)));
+            const newDuration = Math.max(5.0, Number((15.0 - newChain.length * 0.3).toFixed(1)));
 
             const updatedPlayers = prev.currentPlayers.map((p) => {
               if (p.id === newItem.playerId) {
@@ -1342,7 +1342,7 @@ export function App() {
 
     const nextIndex = getNextAliveTurnIndex(updatedPlayers, activeRoom.currentTurnIndex);
     const newWordChain = [...activeRoom.wordChain, newChainItem];
-    const newTurnDuration = Math.max(5.0, Number((15.0 - newWordChain.length * 0.4).toFixed(1)));
+    const newTurnDuration = Math.max(5.0, Number((15.0 - newWordChain.length * 0.3).toFixed(1)));
 
     const updatedRoom: GameRoom = {
       ...activeRoom,
@@ -1376,7 +1376,12 @@ export function App() {
       });
     }
 
+    // 1. Instant local update & sub-20ms Realtime WebSocket broadcast
     setActiveRoom(updatedRoom);
+    broadcastRoomEvent('SUBMIT_WORD', { item: newChainItem });
+    broadcastRoomEvent('SYNC_ROOM', { room: updatedRoom });
+
+    // 2. Asynchronous server synchronization (non-blocking)
     sendRoomAction('SUBMIT_WORD', {
       word,
       isDueum,
@@ -1388,7 +1393,6 @@ export function App() {
       playerColor: userStats.avatarColor,
     });
     saveRoomToServer(updatedRoom);
-    broadcastRoomEvent('SYNC_ROOM', { room: updatedRoom });
   };
 
   // Player Timeout / Elimination with score deduction (-600점) and Multi-round progression
@@ -1397,7 +1401,7 @@ export function App() {
 
     const penaltyPoints = 600;
     const currentChainLength = activeRoom.wordChain ? activeRoom.wordChain.length : 0;
-    const currentTurnDuration = Math.max(5.0, Number((15.0 - currentChainLength * 0.4).toFixed(1)));
+    const currentTurnDuration = Math.max(5.0, Number((15.0 - currentChainLength * 0.3).toFixed(1)));
 
     // Score deduction for loser (-600점)
     const updatedPlayers = activeRoom.currentPlayers.map((p) => {
